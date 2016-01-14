@@ -1,4 +1,4 @@
-# -tcptrace
+# tcptrace
 
 tcptrace的一个画图工具，根据文件名，读取json格式文件，分析数据后画图。
 

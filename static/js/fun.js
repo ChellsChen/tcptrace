@@ -17,7 +17,7 @@
             var $this = $(this);
             $this.highcharts({
                 chart:{
-                    height: "600",
+                    height: $(window).height() - 100,
                     zoomType: 'x',
                 },
                 title: {
@@ -96,6 +96,8 @@ function get_json_data(filename, call_fun){
         }];
 
         call_fun(series);
+    }).error(function(obj, status){
+        alert("Down Load Error!!");
     });
 }
 

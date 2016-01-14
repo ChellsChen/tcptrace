@@ -17,7 +17,7 @@
             var $this = $(this);
             $this.highcharts({
                 chart:{
-                    height: "600",
+                    height: $(window).height() - 100,
                     zoomType: 'x',
                 },
                 title: {

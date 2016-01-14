@@ -30,6 +30,12 @@
                     },
                     min: 0,
                 }],
+                xAxis:[{
+                    title: {
+                        text: "时间(s)",
+                        align: "high",
+                    }
+                }],
                 credits: {
                     enabled: false
                 },
@@ -96,25 +102,25 @@ function get_json_data(filename, call_fun){
 
 function Drawing(){
     var objs = $(".filename-input"),
-            names = [],
-            serieses = [];
-        for(var i=0; i<objs.length; i++){
-            var name = $(objs[i]).val();
-            if(name){
-                names.push(name);
-            }
-        };
-        for(var i=0; i<names.length; i++){
-            var name = names[i];
-            get_json_data(name, function(series){
-                serieses = serieses.concat(series);
-                if(serieses.length == names.length * 3){
-                    $("#charts").TcptraceCharts({
-                        series: serieses,
-                    });
-                }
-            });
+        names = [],
+        serieses = [];
+    for(var i=0; i<objs.length; i++){
+        var name = $(objs[i]).val();
+        if(name){
+            names.push(name);
         }
+    };
+    for(var i=0; i<names.length; i++){
+        var name = names[i];
+        get_json_data(name, function(series){
+            serieses = serieses.concat(series);
+            if(serieses.length == names.length * 3){
+                $("#charts").TcptraceCharts({
+                    series: serieses,
+                });
+            }
+        });
+    }
 }
 
 

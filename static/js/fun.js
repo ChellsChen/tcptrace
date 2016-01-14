@@ -90,6 +90,8 @@ function get_json_data(filename, call_fun){
         }];
 
         call_fun(series);
+    }).error(function(obj, status){
+        alert("Down Load Error!!");
     });
 }
 

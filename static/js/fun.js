@@ -56,7 +56,7 @@ flag 为 > 的使用 time—ack,  time—-win 做两个图
 flag 为 < 的使用 time—seq
 */
 
-function get_data(filename){
+function get_json_data(filename, call_fun){
     $.getJSON("store/"+ filename, function(datas){
         var data_seq = [],
             data_ack = [],
@@ -79,20 +79,42 @@ function get_data(filename){
         };
 
         var series = [{
-            name: "seq",
+            name: filename+ "-seq",
             data: data_seq,
         },{
-            name: "ack",
+            name: filename+"-ack",
             data: data_ack,
         },{
-            name: "win",
+            name: filename+"-win",
             data: data_win,
         }];
 
-        $("#charts").TcptraceCharts({
-            series: series,
-        });
+        call_fun(series);
     });
+}
+
+
+function Drawing(){
+    var objs = $(".filename-input"),
+            names = [],
+            serieses = [];
+        for(var i=0; i<objs.length; i++){
+            var name = $(objs[i]).val();
+            if(name){
+                names.push(name);
+            }
+        };
+        for(var i=0; i<names.length; i++){
+            var name = names[i];
+            get_json_data(name, function(series){
+                serieses = serieses.concat(series);
+                if(serieses.length == names.length * 3){
+                    $("#charts").TcptraceCharts({
+                        series: serieses,
+                    });
+                }
+            });
+        }
 }
 
 

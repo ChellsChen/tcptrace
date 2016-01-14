@@ -57,7 +57,7 @@ flag 为 < 的使用 time—seq
 */
 
 function get_data(filename){
-    $.getJSON("/static/store/"+ filename, function(datas){
+    $.getJSON("store/"+ filename, function(datas){
         var data_seq = [],
             data_ack = [],
             data_win = [];

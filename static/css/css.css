@@ -11,3 +11,16 @@
 .filename-input{
     margin-bottom: 10px;
 }
+#mode{
+    display: none;
+}
+
+.btn-checkbox{
+    width: 8%;
+    margin: 5px 1% 5px 1%;
+    text-align: left;
+}
+
+.check-btn{
+    border-color: #3c763d;
+}

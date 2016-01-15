@@ -5,6 +5,8 @@
  * @version $Id$
  */
 
+ var CHECK_CLASS = "btn-success";
+
 (function($){
     $.fn.TcptraceCharts = function(options){
         var defaluts = {
@@ -103,15 +105,8 @@ function get_json_data(filename, call_fun){
 
 
 function Drawing(){
-    var objs = $(".filename-input"),
-        names = [],
+    var names = get_names(),
         serieses = [];
-    for(var i=0; i<objs.length; i++){
-        var name = $(objs[i]).val();
-        if(name){
-            names.push(name);
-        }
-    };
     for(var i=0; i<names.length; i++){
         var name = names[i];
         get_json_data(name, function(series){
@@ -126,7 +121,64 @@ function Drawing(){
 }
 
 
+ function get_names(){
+    var names = [],
+        objs = $("#filenames input." + CHECK_CLASS);
+
+    for(var i=0; i<objs.length; i++){
+        var name = $(objs[i]).val();
+        if(name){
+            names.push(name);
+        }
+    }
+    return names;
+ }
+
+function LoadHTMLDoc(url){
+    $.ajax({
+        url: url,
+        dataType: "html",
+        error:function(xmlhttp, error, event){
+            alert(error);
+            console.log(xmlhttp);
+        },
+        success:function(data){
+            ParseHTMLDoc(data);
+        }
+    });
+}
+
+function ParseHTMLDoc(data){
+    var doms = $.parseHTML(data)[5],
+        links = $(doms).find("a"),
+        names = [];
+
+    for(var i=0; i< links.length; i++){
+        var link = $(links[i]),
+            href = link.attr("href");
+        if(href && href != "../"){
+            names.push(href);
+        }
+    }
+
+    var mode_btn = $("#mode").find("input");
+    var filenames_obj = $("#filenames");
+
+    for(var i=0; i<names.length; i++){
+        var name = names[i],
+            btn = mode_btn.clone();
+        $(btn).attr("value", name);
+        filenames_obj.append(btn);
+    }
+}
 
 
-
+function checkbtn(obj){
+    if($(obj).hasClass(CHECK_CLASS)){
+        $(obj).removeClass(CHECK_CLASS);
+    }
+    else{
+        $(obj).addClass(CHECK_CLASS);
+    }
+}
 

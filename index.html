@@ -20,7 +20,20 @@
 </head>
 <body>
     <div class="container-fluid" id="main">
+        <div id="mode">
+            <input type="button" class="btn btn-default btn-xs btn-checkbox" onclick="checkbtn(this)">
+        </div>
+
         <div class="col-md-12">
+            <div class="col-md-11" id="filenames">
+            </div>
+
+            <div class="col-md-1">
+                <input type="button" class="btn btn-primary btn-sm" value = "画图" id="drawing">
+            </div>
+        </div>
+
+        <!-- <div class="col-md-12">
             <form class="form-horizontal">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="form-group">
@@ -44,7 +57,7 @@
                 </div>
 
             </form>
-        </div>
+        </div> -->
 
         <div class="col-md-12" id="charts">
         </div>
@@ -52,7 +65,10 @@
 </body>
 <script type="text/javascript">
 $(document).ready(function(){
-    $(".form-group input").keydown(function(e){
+
+    LoadHTMLDoc("store/");
+
+    $("#filenames input").keydown(function(e){
         if(e.keyCode==13){
             Drawing();
         }

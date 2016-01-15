@@ -24,3 +24,15 @@
 .check-btn{
     border-color: #3c763d;
 }
+.align-right{
+    text-align: right;
+}
+a.collapse-header{
+    width: 100%;
+    display: inline;
+}
+#drawing{
+    position: absolute;
+    right: 20px;
+    top: 5px;
+}

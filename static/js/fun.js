@@ -108,10 +108,28 @@ function get_json_data(filename, call_fun){
     });
 }
 
+function redirect_drawing()
+{
+    var names = get_names();
+    names = names.join(',');
+    window.location.search = "file=" + names;
+}
 
-function Drawing(){
-    var names = get_names(),
-        serieses = [];
+function getUrlParams() {
+    var result = {};
+    var params = (window.location.search.split('?')[1] || '').split('&');
+    for(var param in params) {
+        if (params.hasOwnProperty(param)) {
+            paramParts = params[param].split('=');
+            result[paramParts[0]] = decodeURIComponent(paramParts[1] || "");
+        }
+    }
+    return result;
+}
+
+function Drawing(names){
+    var serieses = [];
+
     for(var i=0; i<names.length; i++){
         var name = names[i];
         get_json_data(name, function(series){
@@ -126,18 +144,18 @@ function Drawing(){
 }
 
 
- function get_names(){
-    var names = [],
-        objs = $("#filenames input." + CHECK_CLASS);
+function get_names(){
+   var names = [],
+       objs = $("#filenames input." + CHECK_CLASS);
 
-    for(var i=0; i<objs.length; i++){
-        var name = $(objs[i]).val();
-        if(name){
-            names.push(name);
-        }
-    }
-    return names;
- }
+   for(var i=0; i<objs.length; i++){
+       var name = $(objs[i]).val();
+       if(name){
+           names.push(name);
+       }
+   }
+   return names;
+}
 
 function LoadHTMLDoc(url){
     $.ajax({

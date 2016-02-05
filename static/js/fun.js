@@ -128,9 +128,15 @@ function getUrlParams() {
 }
 
 function Drawing(names){
-    var serieses = [];
+    var serieses = [],
+        length = names.length;
 
-    for(var i=0; i<names.length; i++){
+    if(length == 0){
+        alert("请选择文件");
+        return;
+    }
+
+    for(var i=0; i<length; i++){
         var name = names[i];
         get_json_data(name, function(series){
             serieses = serieses.concat(series);
@@ -203,5 +209,9 @@ function checkbtn(obj){
     else{
         $(obj).addClass(CHECK_CLASS);
     }
+
+    var names = get_names();
+    var names_str = names.join(", ");
+    $("span.select-filenames").html(names_str);
 }
 

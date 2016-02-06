@@ -8,7 +8,7 @@
  var CHECK_CLASS = "btn-success";
 
 (function($){
-    $.fn.TcptraceCharts = function(options){
+    $.fn.TcptraceCharts = function(title, options){
         var defaluts = {
             type:"line",
         };
@@ -20,15 +20,16 @@
             $this.highcharts({
                 chart:{
                     height: $(window).height() - 100,
-                    zoomType: 'x',
+                    zoomType: 'xy',
+                    panning: true,
                 },
                 title: {
                     align:"center",
-                    text: "Tcptrace"
+                    text:  title
                 },
                 yAxis:[{
                     title: {
-                        text: "数量",
+                        text: "SEQ",
                     },
                     min: 0,
                 }],
@@ -64,45 +65,64 @@
 
 
 /*
-flag time seq ack win
-flag 为 > 的使用 time—ack,  time—-win 做两个图
-flag 为 < 的使用 time—seq
+ * s_to_c: from server to client
 */
 
-function get_json_data(filename, call_fun){
-    $.getJSON("store/"+ filename, function(datas){
+function get_json_data(filename, s_to_c, call_fun){
+    var seq_flag = '>'; // client
+    if (s_to_c)
+        seq_flag = '<';
+
+    $.getJSON("store/"+ filename, function(info){
+        var tuple = info.tuple;
+        var datas = info.trace;
+
         var data_seq = [],
             data_ack = [],
+            data_sack = [],
             data_win = [];
+
         for(var i=0; i<datas.length; i++){
             var data = datas[i],
                 flag = data[0],
                 time = data[1],
                 seq = data[2],
                 ack = data[3],
-                win = data[4];
+                win = data[4],
+                sack = data[5];
 
-            if(flag == "<"){
+            if(flag == seq_flag){
                 data_seq.push([time, seq]);
             }
-            else if(flag == ">"){
+            else{
                 data_ack.push([time, ack]);
                 data_win.push([time, win]);
+                if (sack.length > 0)
+                {
+                    for (var ii = 0; ii < sack.length; ii++)
+                    {
+                        data_sack.push([time, sack[ii][0]]);
+                        data_sack.push([time, sack[ii][1]]);
+                        data_sack.push([time ,null]);
+                    }
+                }
             }
         };
 
-        var series = [{
-            name: filename+ "-seq",
-            data: data_seq,
-        },{
-            name: filename+"-ack",
-            data: data_ack,
-        },{
-            name: filename+"-win",
-            data: data_win,
-        }];
+        var series = [
+            { name: filename + "-seq", data: data_seq, },
+            { name: filename + "-ack", data: data_ack, },
+            { name: filename + "-win", data: data_win,  visible: false},
+            { name: filename + "-sack", data: data_sack},
+        ];
 
-        call_fun(series);
+        var title;
+        if (s_to_c)
+            title = tuple[2] + ':' + tuple[3] + '-->' + tuple[0] + ':' + tuple[1];
+        else
+            title = tuple[0] + ':' + tuple[1] + '-->' + tuple[2] + ':' + tuple[3];
+
+        call_fun(title, series);
     }).error(function(obj, status){
         alert("Down Load Error!!");
     });
@@ -138,14 +158,16 @@ function Drawing(names){
 
     for(var i=0; i<length; i++){
         var name = names[i];
-        get_json_data(name, function(series){
-            serieses = serieses.concat(series);
-            if(serieses.length == names.length * 3){
-                $("#charts").TcptraceCharts({
-                    series: serieses,
-                });
-            }
-        });
+        get_json_data(name, true,
+            function(title, series){
+                serieses = serieses.concat(series);
+                if(serieses.length == names.length * series.length){
+                    $("#charts").TcptraceCharts(title, {
+                        series: serieses,
+                    });
+                    }
+                }
+            );
     }
 }
 

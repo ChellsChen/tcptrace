@@ -36,3 +36,8 @@ a.collapse-header{
     right: 20px;
     top: 5px;
 }
+
+#master-container{
+    top: -20px;
+}
+

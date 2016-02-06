@@ -7,6 +7,320 @@
 
  var CHECK_CLASS = "btn-success";
 
+
+
+
+function showChart(datas){
+
+    function getPlotBandsDatas(seriesDatas){
+        var plotBands_from = 999999,
+            plotBands_to = -999999;
+
+        $.each(seriesDatas, function(index, seriesData){
+            var data = seriesData.data,
+                from = data[0][0],
+                to = data[data.length - 1][0];
+            if(from < plotBands_from){
+                plotBands_from = from;
+            }
+            if(to > plotBands_to){
+                plotBands_to = to;
+            }
+        });
+        return {
+            from: plotBands_from,
+            to: plotBands_to
+        }
+
+    }
+
+    function createDetail(masterChart) {
+        // prepare the detail chart
+        var detailSeries = [];
+
+        $.each(masterChart.series, function(index, series){
+            var detailStart = datas[index].data[0][0],
+                detailData = [],
+                seriesDatas = series.data,
+                count = 0;
+
+            for(var j=0; j<seriesDatas.length; j++){
+                var data = seriesDatas[j];
+                if(data.x >= detailStart ){
+                    detailData.push([data.x, data.y]);
+                    count++;
+                }
+                if(count >= 60) break;
+            }
+
+            detailSeries.push({
+                name : series.name,
+                data: detailData,
+            });
+        });
+
+        detailChart = $('#detail-container').highcharts({
+            chart: {
+                reflow: false,
+                // marginLeft: 50,
+                // marginRight: 20,
+                zoomType:"x",
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                align:"center",
+                text: "Tcptrace"
+            },
+            yAxis:[{
+                title: {
+                    text: "数量",
+                },
+                min: 0,
+            }],
+            xAxis:[{
+                title: {
+                    text: "时间(s)",
+                    align: "high",
+                }
+            }],
+            tooltip: {
+                formatter: function () {
+                    var point = this.points[0];
+                    return '<b>' + point.series.name + '</b><br/>' +this.x + ':<br/>' + Highcharts.numberFormat(point.y, 2);
+                },
+                shared: true
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    marker: {
+                        radius: 1,
+                        enabled: true,
+                        lineWidth : 2,
+                        fillColor: "blue",
+                        lineColor: null,
+                        states: {
+                            hover: {
+                                enabled: true,
+                                radius: 3
+                            }
+                        }
+                    }
+                }
+            },
+            exporting: {
+                enabled: false
+            },
+            series: detailSeries,
+        }).highcharts();
+    }
+
+    function createMaster() {
+        plotBandsData = getPlotBandsDatas(datas);
+
+        $('#master-container').highcharts({
+            chart: {
+                type: "line",
+                height:"200",
+                reflow: false,
+                borderWidth: 0,
+                backgroundColor: null,
+                marginLeft: 50,
+                marginRight: 20,
+                zoomType: 'x',
+                events: {
+                    selection: function (event) {
+                        var extremesObject = event.xAxis[0],
+                            min = extremesObject.min,
+                            max = extremesObject.max,
+                            detailSeries = [],
+                            xAxis = this.xAxis[0];
+
+                        // reverse engineer the last part of the data
+                        $.each(this.series, function(index, series){
+                            var detailData = [],
+                                seriesDatas = series.data;
+
+                            $.each(seriesDatas, function(j, data){
+                                if(data.x > min && data.x < max){
+                                    detailData.push([data.x, data.y]);
+                                }
+                            });
+                            detailSeries.push({
+                                name : series.name,
+                                data: detailData,
+                            });
+                        });
+
+                        // move the plot bands to reflect the new detail span
+                        xAxis.removePlotBand('mask-before');
+                        xAxis.addPlotBand({
+                            id: 'mask-before',
+                            from: plotBandsData.from,
+                            to: min,
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        });
+
+                        xAxis.removePlotBand('mask-after');
+                        xAxis.addPlotBand({
+                            id: 'mask-after',
+                            from: max,
+                            to: plotBandsData.to,
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        });
+
+                        $.each(detailChart.series,  function(index, series){
+                            detailChart.series[index].setData(detailSeries[index].data);
+                        });
+
+                        return false;
+                    }
+                }
+            },
+            title: {
+                text: null
+            },
+            xAxis: {
+                showLastTickLabel: true,
+                plotBands: [{
+                    id: 'mask-before',
+                    from: plotBandsData.from,
+                    to: plotBandsData.to,
+                    color: 'rgba(0, 0, 0, 0.2)'
+                }],
+                title: {
+                    text: null,
+                }
+            },
+            yAxis: {
+                gridLineWidth: 0,
+                labels: {
+                    enabled: false
+                },
+                title: {
+                    text: null
+                },
+                min: 0.6,
+                showFirstLabel: false
+            },
+            tooltip: {
+               shared: true,
+            },
+            legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                enabled: true,
+                x:0,
+                y:0,
+
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    shadow: false,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            exporting: {
+                enabled: false
+            },
+            series: datas,
+
+        }, function (masterChart) {
+            createDetail(masterChart);
+        }).highcharts();
+    }
+
+    createMaster();
+}
+
+(function($){
+    $.fn.TcptraceStockCharts = function (options) {
+        var defaluts = {
+            type : "line",
+        };
+        var settings = $.extend(true, defaluts, options);
+
+        return this.each(function(){
+            $(this).highcharts('StockChart', {
+                chart:{
+                    height: $(window).height() - 100,
+                },
+
+                rangeSelector : {
+                    // enabled:false,
+                    selected : 0,
+                    buttons: [{
+                        type: 'millisecond',
+                        count: 1000,
+                        text: '10ms'
+                    }, {
+                        type: 'all',
+                        text: 'All'
+                    }],
+                    inputEnabled:false,
+                },
+                legend: {
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    enabled: true,
+                    x:0,
+                    y:0,
+                },
+                title : {
+                    text : 'Tcptrace'
+                },
+                credits: {
+                    enabled: false
+                },
+                xAxis:{
+                    // type: 'linear',
+                    title: {
+                        text: "时间(s)",
+                        align: "high",
+                    },
+                    // labels: {
+                    //     formatter: function () {
+                    //         return this.value;
+                    //     }
+                    // },
+                    // range: 10*1000,
+                },
+                plotOptions: {
+                    series: {
+                        lineWidth : 1,
+                        marker: {
+                            radius: 2,
+                            enabled: true,
+                            lineWidth : 2,
+                            fillColor: "blue",
+                            lineColor: null,
+                        },
+                    },
+                },
+                series : settings.series,
+            });
+        });
+    }
+
+})(jQuery);
+
+
 (function($){
     $.fn.TcptraceCharts = function(title, options){
         var defaluts = {
@@ -16,7 +330,10 @@
         var settings = $.extend(true, defaluts, options);
 
         return this.each(function(){
-            var $this = $(this);
+            var $this = $(this),
+                detail_obj = $this.find("#detail-container");
+                master_obj = $this.find("#master-container");
+
             $this.highcharts({
                 chart:{
                     height: $(window).height() - 100,
@@ -90,6 +407,7 @@ function get_json_data(filename, s_to_c, call_fun){
                 ack = data[3],
                 win = data[4],
                 sack = data[5];
+                time = time * 1000;
 
             if(flag == seq_flag){
                 data_seq.push([time, seq]);
@@ -132,7 +450,7 @@ function redirect_drawing()
 {
     var names = get_names();
     names = names.join(',');
-    window.location.search = "file=" + names;
+    window.location.href = "charts.html?file=" + names;
 }
 
 function getUrlParams() {
@@ -162,7 +480,7 @@ function Drawing(names){
             function(title, series){
                 serieses = serieses.concat(series);
                 if(serieses.length == names.length * series.length){
-                    $("#charts").TcptraceCharts(title, {
+                    $("#charts").TcptraceStockCharts(title, {
                         series: serieses,
                     });
                     }

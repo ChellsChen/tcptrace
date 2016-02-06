@@ -305,7 +305,7 @@ function showChart(datas){
                         text: "时间(s)",
                         align: "high",
                     },
-                    tickInterval: 100,
+                    //tickInterval: 100,
                     // tickPixelInterval: 1000,
                     range: 10*1000,
                     ordinal: false,

@@ -103,7 +103,7 @@ function get_json_data(filename, s_to_c, call_fun){
                     {
                         data_sack.push([time, sack[ii][0]]);
                         data_sack.push([time, sack[ii][1]]);
-                        data_sack.push([time ,null]);
+                        data_sack.push([time, null]);
                     }
                 }
             }

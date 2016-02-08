@@ -263,7 +263,7 @@ function showChart(datas){
                     zoomType: 'xy',
                 },
                 rangeSelector : {
-                    selected : 0,
+                    selected : 1,
                     buttons: [{
                         type: 'millisecond',
                         count: 1000*5,
@@ -448,8 +448,8 @@ function get_json_data(filename, s_to_c, call_fun){
 
         var series = [
             { name: filename + "-seq",  data: data_seq,   },
-            { name: filename + "-ack",  data: data_ack,   },
-            { name: filename + "-win",  data: data_win,   visible: false},
+            { name: filename + "-ack",  data: data_ack, step: true  },
+            { name: filename + "-win",  data: data_win, /*  visible: false */},
             { name: filename + "-sack", data: data_sack,
                         marker: {
                             enabled: false,

@@ -47,7 +47,8 @@
                 plotOptions: {
                     series: {
                         marker: {
-                            radius: 8,
+                            radius: 2,
+                            enabled:true,
                         },
                     },
                 },

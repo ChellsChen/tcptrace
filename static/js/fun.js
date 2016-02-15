@@ -7,6 +7,232 @@
 
  var CHECK_CLASS = "btn-success";
 
+
+
+
+function showChart(datas){
+
+    function createDetail(masterChart) {
+        // prepare the detail chart
+        var detailSeries = [];
+
+        $.each(masterChart.series, function(index, series){
+            var detailStart = datas[index].data[0][0],
+                detailData = [],
+                seriesDatas = series.data,
+                count = 0;
+
+            for(var j=0; j<seriesDatas.length; j++){
+                var data = seriesDatas[j];
+                if(data.x >= detailStart ){
+                    detailData.push([data.x, data.y]);
+                    count++;
+                }
+                if(count >= 60) break;
+            }
+
+            detailSeries.push({
+                name : series.name,
+                data: detailData,
+            });
+        });
+
+        detailChart = $('#detail-container').highcharts({
+            chart: {
+                reflow: false,
+                marginLeft: 50,
+                marginRight: 20,
+                zoomType:"x",
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                align:"center",
+                text: "Tcptrace"
+            },
+            yAxis:[{
+                title: {
+                    text: "数量",
+                },
+                min: 0,
+            }],
+            xAxis:[{
+                title: {
+                    text: "时间(s)",
+                    align: "high",
+                }
+            }],
+            tooltip: {
+                formatter: function () {
+                    var point = this.points[0];
+                    return '<b>' + point.series.name + '</b><br/>' +this.x + ':<br/>' + Highcharts.numberFormat(point.y, 2);
+                },
+                shared: true
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    marker: {
+                        radius: 1,
+                        enabled: true,
+                        lineWidth : 2,
+                        fillColor: "blue",
+                        lineColor: null,
+                        states: {
+                            hover: {
+                                enabled: true,
+                                radius: 3
+                            }
+                        }
+                    }
+                }
+            },
+            exporting: {
+                enabled: false
+            },
+            series: detailSeries,
+        }).highcharts();
+    }
+
+    function createMaster() {
+        $('#master-container').highcharts({
+            chart: {
+                type: "area",
+                height:"200",
+                reflow: false,
+                borderWidth: 0,
+                backgroundColor: null,
+                marginLeft: 50,
+                marginRight: 20,
+                zoomType: 'x',
+                events: {
+                    selection: function (event) {
+                        var extremesObject = event.xAxis[0],
+                            min = extremesObject.min,
+                            max = extremesObject.max,
+                            detailSeries = [],
+                            xAxis = this.xAxis[0];
+
+                        // reverse engineer the last part of the data
+                        $.each(this.series, function(index, series){
+                            var detailData = [],
+                                seriesDatas = series.data;
+
+                            $.each(seriesDatas, function(j, data){
+                                if(data.x > min && data.x < max){
+                                    detailData.push([data.x, data.y]);
+                                }
+                            });
+                            detailSeries.push({
+                                name : series.name,
+                                data: detailData,
+                            });
+                        });
+
+                        // move the plot bands to reflect the new detail span
+                        xAxis.removePlotBand('mask-before');
+                        xAxis.addPlotBand({
+                            id: 'mask-before',
+                            from: datas[0][0],
+                            to: min,
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        });
+
+                        xAxis.removePlotBand('mask-after');
+                        xAxis.addPlotBand({
+                            id: 'mask-after',
+                            from: max,
+                            to: datas[datas.length - 1][0],
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        });
+
+                        $.each(detailChart.series,  function(index, series){
+                            detailChart.series[index].setData(detailSeries[index].data);
+                        });
+
+                        return false;
+                    }
+                }
+            },
+            title: {
+                text: null
+            },
+            xAxis: {
+                showLastTickLabel: true,
+                plotBands: [{
+                    id: 'mask-before',
+                    from: datas[0][0],
+                    to: datas[datas.length - 1][0],
+                    color: 'rgba(0, 0, 0, 0.2)'
+                }],
+                title: {
+                    text: null,
+                }
+            },
+            yAxis: {
+                gridLineWidth: 0,
+                labels: {
+                    enabled: false
+                },
+                title: {
+                    text: null
+                },
+                min: 0.6,
+                showFirstLabel: false
+            },
+            tooltip: {
+               shared: true,
+            },
+            legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                enabled: true,
+                x:0,
+                y:0,
+
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    fillColor: {
+                        linearGradient: [0, 0, 0, 70],
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, 'rgba(255,255,255,0)']
+                        ]
+                    },
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    shadow: false,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            exporting: {
+                enabled: false
+            },
+            series: datas,
+
+        }, function (masterChart) {
+            createDetail(masterChart);
+        }).highcharts(); // return chart instance
+    }
+
+    createMaster();
+}
+
+
 (function($){
     $.fn.TcptraceCharts = function(options){
         var defaluts = {
@@ -16,7 +242,10 @@
         var settings = $.extend(true, defaluts, options);
 
         return this.each(function(){
-            var $this = $(this);
+            var $this = $(this),
+                detail_obj = $this.find("#detail-container");
+                master_obj = $this.find("#master-container");
+
             $this.highcharts({
                 chart:{
                     height: $(window).height() - 100,
@@ -123,9 +352,10 @@ function Drawing(){
         get_json_data(name, function(series){
             serieses = serieses.concat(series);
             if(serieses.length == names.length * 3){
-                $("#charts").TcptraceCharts({
-                    series: serieses,
-                });
+                showChart(serieses);
+                // $("#charts").TcptraceCharts({
+                //     series: serieses,
+                // });
             }
         });
     }

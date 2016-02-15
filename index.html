@@ -61,8 +61,8 @@
     </div>
 </body>
 <script type="text/javascript">
-$(document).ready(function(){
-
+function mode_select_file()
+{
     LoadHTMLDoc("store/");
 
     $("#filenames input").keydown(function(e){
@@ -71,7 +71,20 @@ $(document).ready(function(){
         }
     });
 
-    $("#drawing").click(Drawing);
+    $("#drawing").click(redirect_drawing);
+}
+
+$(document).ready(function(){
+    var q = getUrlParams();
+    var fs = q['file'];
+    if (!fs)
+    {
+        mode_select_file();
+    }
+    else{
+        Drawing(fs.split(','));
+    }
+
 });
 </script>
 

@@ -10,7 +10,7 @@
 (function($){
     $.fn.TcptraceCharts = function(options){
         var defaluts = {
-            type:"line"
+            type:"line",
         };
 
         var settings = $.extend(true, defaluts, options);
@@ -46,9 +46,13 @@
                 },
                 plotOptions: {
                     series: {
+                        lineWidth : 1,
                         marker: {
-                            radius: 2,
-                            enabled:true,
+                            radius: 1,
+                            enabled: true,
+                            lineWidth : 2,
+                            fillColor: "blue",
+                            lineColor: null,
                         },
                     },
                 },

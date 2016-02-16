@@ -249,6 +249,77 @@ function showChart(datas){
     createMaster();
 }
 
+(function($){
+    $.fn.TcptraceStockCharts = function (options) {
+        var defaluts = {
+            type : "line",
+        };
+        var settings = $.extend(true, defaluts, options);
+
+        return this.each(function(){
+            $(this).highcharts('StockChart', {
+                chart:{
+                    height: $(window).height() - 100,
+                },
+
+                rangeSelector : {
+                    // enabled:false,
+                    selected : 0,
+                    buttons: [{
+                        type: 'millisecond',
+                        count: 1000,
+                        text: '10ms'
+                    }, {
+                        type: 'all',
+                        text: 'All'
+                    }],
+                    inputEnabled:false,
+                },
+                legend: {
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    enabled: true,
+                    x:0,
+                    y:0,
+                },
+                title : {
+                    text : 'Tcptrace'
+                },
+                credits: {
+                    enabled: false
+                },
+                xAxis:{
+                    // type: 'linear',
+                    title: {
+                        text: "时间(s)",
+                        align: "high",
+                    },
+                    // labels: {
+                    //     formatter: function () {
+                    //         return this.value;
+                    //     }
+                    // },
+                    // range: 10*1000,
+                },
+                plotOptions: {
+                    series: {
+                        lineWidth : 1,
+                        marker: {
+                            radius: 2,
+                            enabled: true,
+                            lineWidth : 2,
+                            fillColor: "blue",
+                            lineColor: null,
+                        },
+                    },
+                },
+                series : settings.series,
+            });
+        });
+    }
+
+})(jQuery);
+
 
 (function($){
     $.fn.TcptraceCharts = function(options){
@@ -327,6 +398,7 @@ function get_json_data(filename, call_fun){
                 seq = data[2],
                 ack = data[3],
                 win = data[4];
+            time = time * 1000;
 
             if(flag == "<"){
                 data_seq.push([time, seq]);
@@ -358,7 +430,7 @@ function redirect_drawing()
 {
     var names = get_names();
     names = names.join(',');
-    window.location.search = "file=" + names;
+    window.location.href = "charts.html?file=" + names;
 }
 
 function getUrlParams() {
@@ -387,10 +459,10 @@ function Drawing(names){
         get_json_data(name, function(series){
             serieses = serieses.concat(series);
             if(serieses.length == names.length * 3){
-                showChart(serieses);
-                // $("#charts").TcptraceCharts({
-                //     series: serieses,
-                // });
+                $("#charts").TcptraceStockCharts({
+                    series: serieses
+                })
+                // showChart(serieses);
             }
         });
     }

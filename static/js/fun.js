@@ -287,12 +287,33 @@ function showChart(datas){
                 credits: {
                     enabled: false
                 },
+                yAxis:{
+                    labels:{
+                        align: "left",
+                    }
+                },
                 xAxis:{
                     title: {
                         text: "时间(s)",
                         align: "high",
                     },
+                    tickInterval: 100,
                     range: 10*1000,
+                    labels: {
+                        formatter: function(){
+                            var datetime = new Date(this.value);
+                            var hh = datetime.getHours(),
+                                mm = datetime.getMinutes(),
+                                ss = datetime.getSeconds(),
+                                ms = datetime.getMilliseconds(),
+                                time_list = [];
+                            if(mm > 0){
+                                time_list.push(mm);
+                            }
+                            time_list.push(ss + "." + ms);
+                            return time_list.join(":");
+                        }
+                    }
                 },
                 plotOptions: {
                     series: {

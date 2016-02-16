@@ -259,15 +259,14 @@ function showChart(datas){
         return this.each(function(){
             $(this).highcharts('StockChart', {
                 chart:{
-                    height: $(window).height() - 100,
+                    height: $(window).height() - 50,
                 },
-
                 rangeSelector : {
                     selected : 0,
                     buttons: [{
                         type: 'millisecond',
                         count: 1000,
-                        text: '10ms'
+                        text: '1s'
                     }, {
                         type: 'all',
                         text: 'All'
@@ -298,7 +297,9 @@ function showChart(datas){
                         align: "high",
                     },
                     tickInterval: 100,
+                    // tickPixelInterval: 1000,
                     range: 10*1000,
+                    ordinal: false,
                     labels: {
                         formatter: function(){
                             var datetime = new Date(this.value);

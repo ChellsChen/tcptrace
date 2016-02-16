@@ -263,7 +263,6 @@ function showChart(datas){
                 },
 
                 rangeSelector : {
-                    // enabled:false,
                     selected : 0,
                     buttons: [{
                         type: 'millisecond',
@@ -283,23 +282,17 @@ function showChart(datas){
                     y:0,
                 },
                 title : {
-                    text : 'Tcptrace'
+                    text : settings.title,
                 },
                 credits: {
                     enabled: false
                 },
                 xAxis:{
-                    // type: 'linear',
                     title: {
                         text: "时间(s)",
                         align: "high",
                     },
-                    // labels: {
-                    //     formatter: function () {
-                    //         return this.value;
-                    //     }
-                    // },
-                    // range: 10*1000,
+                    range: 10*1000,
                 },
                 plotOptions: {
                     series: {
@@ -322,7 +315,7 @@ function showChart(datas){
 
 
 (function($){
-    $.fn.TcptraceCharts = function(title, options){
+    $.fn.TcptraceCharts = function(options){
         var defaluts = {
             type:"line",
         };
@@ -342,7 +335,7 @@ function showChart(datas){
                 },
                 title: {
                     align:"center",
-                    text:  title
+                    text: settings.title,
                 },
                 yAxis:[{
                     title: {
@@ -480,8 +473,10 @@ function Drawing(names){
             function(title, series){
                 serieses = serieses.concat(series);
                 if(serieses.length == names.length * series.length){
-                    $("#charts").TcptraceStockCharts(title, {
+                    console.log(serieses);
+                    $("#charts").TcptraceStockCharts({
                         series: serieses,
+                        title: title,
                     });
                     }
                 }

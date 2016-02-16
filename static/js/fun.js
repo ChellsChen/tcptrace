@@ -12,6 +12,28 @@
 
 function showChart(datas){
 
+    function getPlotBandsDatas(seriesDatas){
+        var plotBands_from = 999999,
+            plotBands_to = -999999;
+
+        $.each(seriesDatas, function(index, seriesData){
+            var data = seriesData.data,
+                from = data[0][0],
+                to = data[data.length - 1][0];
+            if(from < plotBands_from){
+                plotBands_from = from;
+            }
+            if(to > plotBands_to){
+                plotBands_to = to;
+            }
+        });
+        return {
+            from: plotBands_from,
+            to: plotBands_to
+        }
+
+    }
+
     function createDetail(masterChart) {
         // prepare the detail chart
         var detailSeries = [];
@@ -40,8 +62,8 @@ function showChart(datas){
         detailChart = $('#detail-container').highcharts({
             chart: {
                 reflow: false,
-                marginLeft: 50,
-                marginRight: 20,
+                // marginLeft: 50,
+                // marginRight: 20,
                 zoomType:"x",
             },
             credits: {
@@ -98,9 +120,11 @@ function showChart(datas){
     }
 
     function createMaster() {
+        plotBandsData = getPlotBandsDatas(datas);
+
         $('#master-container').highcharts({
             chart: {
-                type: "area",
+                type: "line",
                 height:"200",
                 reflow: false,
                 borderWidth: 0,
@@ -136,7 +160,7 @@ function showChart(datas){
                         xAxis.removePlotBand('mask-before');
                         xAxis.addPlotBand({
                             id: 'mask-before',
-                            from: datas[0][0],
+                            from: plotBandsData.from,
                             to: min,
                             color: 'rgba(0, 0, 0, 0.2)'
                         });
@@ -145,7 +169,7 @@ function showChart(datas){
                         xAxis.addPlotBand({
                             id: 'mask-after',
                             from: max,
-                            to: datas[datas.length - 1][0],
+                            to: plotBandsData.to,
                             color: 'rgba(0, 0, 0, 0.2)'
                         });
 
@@ -164,8 +188,8 @@ function showChart(datas){
                 showLastTickLabel: true,
                 plotBands: [{
                     id: 'mask-before',
-                    from: datas[0][0],
-                    to: datas[datas.length - 1][0],
+                    from: plotBandsData.from,
+                    to: plotBandsData.to,
                     color: 'rgba(0, 0, 0, 0.2)'
                 }],
                 title: {
@@ -199,13 +223,6 @@ function showChart(datas){
             },
             plotOptions: {
                 series: {
-                    fillColor: {
-                        linearGradient: [0, 0, 0, 70],
-                        stops: [
-                            [0, Highcharts.getOptions().colors[0]],
-                            [1, 'rgba(255,255,255,0)']
-                        ]
-                    },
                     lineWidth: 1,
                     marker: {
                         enabled: false
@@ -226,7 +243,7 @@ function showChart(datas){
 
         }, function (masterChart) {
             createDetail(masterChart);
-        }).highcharts(); // return chart instance
+        }).highcharts();
     }
 
     createMaster();

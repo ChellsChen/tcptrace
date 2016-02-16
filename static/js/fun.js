@@ -473,7 +473,6 @@ function Drawing(names){
             function(title, series){
                 serieses = serieses.concat(series);
                 if(serieses.length == names.length * series.length){
-                    console.log(serieses);
                     $("#charts").TcptraceStockCharts({
                         series: serieses,
                         title: title,

@@ -22,7 +22,9 @@
 <body>
     <div class="container-fluid" id="main">
         <div id="mode">
-            <input type="button" class="btn btn-default btn-xs btn-checkbox" onclick="checkbtn(this)">
+            <div class="col-md-3 col-md-file">
+                <input type="button" class="btn btn-default btn-xs btn-checkbox" onclick="checkbtn(this)">
+            </div>
         </div>
 
         <div class="col-md-12">
@@ -36,8 +38,6 @@
                                 选择文件: [
                                 <span class="select-filenames"></span>]
                             </a>
-
-                            <input type="button" class="btn btn-primary btn-sm" value = "作图" id="drawing">
                         </h4>
                     </div>
 
@@ -48,6 +48,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="col-md-12">
+                <input type="button" class="btn btn-primary btn-sm" value = "作图" id="drawing">
             </div>
         </div>
 

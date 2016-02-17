@@ -263,10 +263,10 @@ function showChart(datas){
                     zoomType: 'xy',
                 },
                 rangeSelector : {
-                    selected : 1,
+                    selected : 0,
                     buttons: [{
                         type: 'millisecond',
-                        count: 1000,
+                        count: 1000*5,
                         text: '1s'
                     }, {
                         type: 'all',
@@ -289,11 +289,12 @@ function showChart(datas){
                 },
                 yAxis:{
                     labels:{
-                        align: "left",
+                        align: "right",
                     },
                     title:{
                         text: 'SEQ'
-                    }
+                    },
+                    opposite: false,
                 },
                 xAxis:{
                     title: {
@@ -302,7 +303,7 @@ function showChart(datas){
                     },
                     tickInterval: 100,
                     // tickPixelInterval: 1000,
-                    //range: 10*1000,
+                    range: 10*1000,
                     ordinal: false,
                     labels: {
                         formatter: function(){
@@ -546,14 +547,15 @@ function ParseHTMLDoc(data){
         }
     }
 
-    var mode_btn = $("#mode").find("input");
+    var mode_col = $("#mode").find(".col-md-file");
     var filenames_obj = $("#filenames");
 
     for(var i=0; i<names.length; i++){
         var name = names[i],
-            btn = mode_btn.clone();
-        $(btn).attr("value", name);
-        filenames_obj.append(btn);
+            col_obj = mode_col.clone(),
+            mode_btn = col_obj.find("input");
+        $(mode_btn).attr("value", name);
+        filenames_obj.append(col_obj);
     }
 }
 

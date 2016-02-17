@@ -260,9 +260,10 @@ function showChart(datas){
             $(this).highcharts('StockChart', {
                 chart:{
                     height: $(window).height() - 50,
+                    zoomType: 'xy',
                 },
                 rangeSelector : {
-                    selected : 0,
+                    selected : 1,
                     buttons: [{
                         type: 'millisecond',
                         count: 1000,
@@ -289,6 +290,9 @@ function showChart(datas){
                 yAxis:{
                     labels:{
                         align: "left",
+                    },
+                    title:{
+                        text: 'SEQ'
                     }
                 },
                 xAxis:{
@@ -298,22 +302,13 @@ function showChart(datas){
                     },
                     tickInterval: 100,
                     // tickPixelInterval: 1000,
-                    range: 10*1000,
+                    //range: 10*1000,
                     ordinal: false,
                     labels: {
                         formatter: function(){
-                            var datetime = new Date(this.value);
-                            var hh = datetime.getHours(),
-                                mm = datetime.getMinutes(),
-                                ss = datetime.getSeconds(),
-                                ms = datetime.getMilliseconds(),
-                                time_list = [];
-                            if(mm > 0){
-                                time_list.push(mm);
-                            }
-                            time_list.push(ss + "." + ms);
-                            return time_list.join(":");
-                        }
+                            return this.value/1000;
+                        },
+                        step: 5
                     }
                 },
                 plotOptions: {
@@ -443,19 +438,24 @@ function get_json_data(filename, s_to_c, call_fun){
         };
 
         var series = [
-            { name: filename + "-seq", data: data_seq, },
-            { name: filename + "-ack", data: data_ack, },
-            { name: filename + "-win", data: data_win,  visible: false},
+            { name: filename + "-seq",  data: data_seq,   },
+            { name: filename + "-ack",  data: data_ack,   },
+            { name: filename + "-win",  data: data_win,   visible: false},
             { name: filename + "-sack", data: data_sack},
         ];
 
-        var title;
+        var from, to;
         if (s_to_c)
-            title = tuple[2] + ':' + tuple[3] + '-->' + tuple[0] + ':' + tuple[1];
+        {
+            from = tuple[2] + ':' + tuple[3];
+            to   = tuple[0] + ':' + tuple[1];
+        }
         else
-            title = tuple[0] + ':' + tuple[1] + '-->' + tuple[2] + ':' + tuple[3];
-
-        call_fun(title, series);
+        {
+            from = tuple[0] + ':' + tuple[1];
+            to   = tuple[2] + ':' + tuple[3];
+        }
+        call_fun(from + '-->' + to, series);
     }).error(function(obj, status){
         alert("Down Load Error!!");
     });

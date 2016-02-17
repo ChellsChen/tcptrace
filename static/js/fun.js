@@ -295,6 +295,10 @@ function showChart(datas){
                         text: 'SEQ'
                     },
                     opposite: false,
+                    crosshair: {
+                        color: "#a0a0a0",
+                        width:2
+                    },
                 },
                 xAxis:{
                     title: {
@@ -323,6 +327,10 @@ function showChart(datas){
                             lineColor: null,
                         },
                     },
+                },
+                tooltip: {
+                    shared: true,
+                    crosshairs: false,
                 },
                 series : settings.series,
             });
@@ -500,9 +508,9 @@ function Drawing(names){
                         series: serieses,
                         title: title,
                     });
-                    }
                 }
-            );
+            }
+        );
     }
 }
 

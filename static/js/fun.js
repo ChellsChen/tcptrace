@@ -263,7 +263,7 @@ function showChart(datas){
                     zoomType: 'xy',
                 },
                 rangeSelector : {
-                    selected : 0,
+                    selected : 1,
                     buttons: [{
                         type: 'millisecond',
                         count: 1000*5,
@@ -305,7 +305,7 @@ function showChart(datas){
                         text: "时间(s)",
                         align: "high",
                     },
-                    tickInterval: 100,
+                    //tickInterval: 100,
                     // tickPixelInterval: 1000,
                     range: 10*1000,
                     ordinal: false,
@@ -421,12 +421,12 @@ function get_json_data(filename, s_to_c, call_fun){
         for(var i=0; i<datas.length; i++){
             var data = datas[i],
                 flag = data[0],
-                time = data[1],
+                time = data[1] * 1000,
                 seq = data[2],
                 ack = data[3],
                 win = data[4],
-                sack = data[5];
-                time = time * 1000;
+                sack = data[5] || [],
+                length = data[6] || 0;
 
             if(flag == seq_flag){
                 data_seq.push([time, seq]);
@@ -448,9 +448,13 @@ function get_json_data(filename, s_to_c, call_fun){
 
         var series = [
             { name: filename + "-seq",  data: data_seq,   },
-            { name: filename + "-ack",  data: data_ack,   },
-            { name: filename + "-win",  data: data_win,   visible: false},
-            { name: filename + "-sack", data: data_sack},
+            { name: filename + "-ack",  data: data_ack, step: true  },
+            { name: filename + "-win",  data: data_win, /*  visible: false */},
+            { name: filename + "-sack", data: data_sack,
+                        marker: {
+                            enabled: false,
+                        },
+            },
         ];
 
         var from, to;
